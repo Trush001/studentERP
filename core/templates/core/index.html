@@ -1,0 +1,92 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Welcome to Student ERP{% endblock %}
+
+{% block content %}
+<div class="relative overflow-hidden flex-grow flex items-center justify-center py-20 sm:py-32 lg:pb-32 xl:pb-36">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center animate-fade-in">
+        <h1 class="text-5xl md:text-7xl font-extrabold text-gray-900 tracking-tight mb-8">
+            Manage your campus <br class="hidden sm:block">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-redlight-600 to-redlight-500">with absolute ease.</span>
+        </h1>
+        <p class="mt-4 max-w-2xl text-lg md:text-xl text-gray-600 mx-auto mb-10">
+            A comprehensive, next-generation ERP system designed to bridge the gap between students and faculty. Simplify tracking, learning, and collaboration.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            {% if not user.is_authenticated %}
+            <a href="{% url 'login' %}" class="inline-flex justify-center items-center px-8 py-4 text-base font-semibold text-white bg-redlight-600 hover:bg-redlight-500 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-redlight-500">
+                Get Started
+                <svg class="w-5 h-5 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                </svg>
+            </a>
+            <div class="relative group">
+                <button class="w-full sm:w-auto inline-flex justify-center items-center px-8 py-4 text-base font-semibold text-redlight-700 bg-white border border-redlight-200 hover:bg-redlight-50 rounded-xl shadow-sm hover:shadow transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-redlight-500">
+                    Register Now
+                </button>
+                <div class="absolute left-0 right-0 mt-2 w-full sm:w-48 rounded-xl shadow-xl bg-white ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div class="py-1 rounded-xl" role="menu">
+                        <a href="{% url 'student_register' %}" class="block px-4 py-3 text-sm font-medium text-gray-700 hover:bg-redlight-50 hover:text-redlight-600 transition-colors">I am a Student</a>
+                        <a href="{% url 'faculty_register' %}" class="block px-4 py-3 text-sm font-medium text-gray-700 hover:bg-redlight-50 hover:text-redlight-600 transition-colors">I am a Faculty</a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+                {% if user.is_student %}
+                <a href="{% url 'student_dashboard' %}" class="inline-flex justify-center items-center px-8 py-4 text-base font-semibold text-white bg-redlight-600 hover:bg-redlight-500 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
+                    Go to Dashboard
+                </a>
+                {% elif user.is_faculty %}
+                <a href="{% url 'faculty_dashboard' %}" class="inline-flex justify-center items-center px-8 py-4 text-base font-semibold text-white bg-redlight-600 hover:bg-redlight-500 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
+                    Go to Dashboard
+                </a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Decorative background elements (floating blobs) -->
+    <div class="absolute top-0 right-0 -mr-20 -mt-20 w-72 h-72 rounded-full bg-redlight-200 opacity-50 blur-3xl mix-blend-multiply filter pointer-events-none animate-pulse"></div>
+    <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-72 h-72 rounded-full bg-redlight-300 opacity-50 blur-3xl mix-blend-multiply filter pointer-events-none animate-pulse delay-1000"></div>
+</div>
+
+<!-- Features Section -->
+<div class="bg-white/60 backdrop-blur-md py-24 sm:py-32 border-t border-redlight-100 relative z-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Everything you need to succeed</h2>
+            <p class="mt-4 text-lg text-gray-600">Built specifically for modern educational institutions.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="glass p-8 rounded-2xl hover:shadow-xl transition-all transform hover:-translate-y-2 border border-gray-100">
+                <div class="w-12 h-12 bg-redlight-100 rounded-xl flex items-center justify-center text-redlight-600 mb-6">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Academic Management</h3>
+                <p class="text-gray-600 leading-relaxed">Easily track attendance, grades, and assignments in one unified dashboard.</p>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="glass p-8 rounded-2xl hover:shadow-xl transition-all transform hover:-translate-y-2 border border-gray-100">
+                <div class="w-12 h-12 bg-redlight-100 rounded-xl flex items-center justify-center text-redlight-600 mb-6">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Seamless Collaboration</h3>
+                <p class="text-gray-600 leading-relaxed">Connect students and faculty instantly. Share resources and feedback seamlessly.</p>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="glass p-8 rounded-2xl hover:shadow-xl transition-all transform hover:-translate-y-2 border border-gray-100">
+                <div class="w-12 h-12 bg-redlight-100 rounded-xl flex items-center justify-center text-redlight-600 mb-6">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Secure Platform</h3>
+                <p class="text-gray-600 leading-relaxed">Enterprise-grade security ensuring your data and academic records are always protected.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

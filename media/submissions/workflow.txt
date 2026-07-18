@@ -1,0 +1,57 @@
+trushal Parmar :
+
+student ERP System
+-------------------------------------------
+design and develop 2different apps for this project!
+	1) student
+	2) faculty
+	3) admin
+------------------------------------------------
+1) student side
+- login page with email verification(one time)
+-profile page where students can enter their personal detail	
+	- there will be some course related details which will be handled and created by the faculty which cannot be changed by the student
+- attendance
+- course resources 
+- results of the exams 
+- overall grade and remarks from the faculty 
+
+2) faculty side
+- login with email verification(one time)
+- profile page where students can enter their personal detail
+	-
+- leave request page
+- student add and manage page for their particular class
+- resources page where they can see and upload their personal notes as well
+- student exam list where they can give marks based on their work
+- attendance page for the faculty
+- calendar with the list of the lectures based on time
+
+3) admin
+-  login with email verification(one time)
+-  profile page where students can enter their personal detail
+- admin will handle two different pages for handling staff and student 
+	- enrolling student in their respected course
+	- enrolling faculty in their field
+- handling request of leave 
+- managing the attendance of the staff
+
+--------------------------------------------------------------------------
+
+after successfuly login,
+
+1) .student can enroll the programs, according to subject given.
+2) .after enroll request will be sent to faculty
+3) .faculty will approve the request
+4) .faculty can assign batches
+5) .faculty can show enrolled student info
+6) .faculty can update/delete student from the batches
+7) .student can check attendance and progress of the course 
+8) .student can submit/upload the assignment and project
+9) .faculty can check the assignment and project and approve it or reject it. 
+
+
+
+
+
+

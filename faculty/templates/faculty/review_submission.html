@@ -1,0 +1,132 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Faculty ERP | Review Submission{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full animate-fade-in">
+    <div class="glass p-6 sm:p-8 rounded-2xl shadow-sm border border-white/50 mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Review Submission</h1>
+            <p class="text-gray-600 mt-1">Assignment: <span class="font-medium text-gray-900">{{ submission.assignment.title }}</span></p>
+        </div>
+        <a href="{% url 'assignment_management' %}?batch_id={{ submission.assignment.batch.id }}" class="inline-flex items-center px-4 py-2 border border-gray-200 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 hover:text-redlight-600 transition-colors shadow-sm">
+            &larr; Back to Assignments
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Submission Details -->
+        <div class="glass rounded-2xl shadow-sm border border-white/50 overflow-hidden">
+            <div class="px-6 py-5 border-b border-gray-200/50 bg-white/40">
+                <h2 class="text-lg font-semibold text-gray-900">Student Details</h2>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <p class="text-sm text-gray-500 uppercase tracking-wider mb-1">Student</p>
+                    <div class="flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-full bg-redlight-100 text-redlight-600 flex items-center justify-center font-bold text-lg">
+                            {{ submission.student.fullname|first|upper }}
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">{{ submission.student.fullname }}</p>
+                            <p class="text-sm text-gray-500">{{ submission.student.email }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="pt-4 border-t border-gray-200/50">
+                    <p class="text-sm text-gray-500 uppercase tracking-wider mb-1">Submitted On</p>
+                    <p class="font-medium text-gray-900">{{ submission.submission_date|date:"F d, Y, g:i a" }}</p>
+                </div>
+
+                <div class="pt-4 border-t border-gray-200/50">
+                    <p class="text-sm text-gray-500 uppercase tracking-wider mb-2">Submitted File</p>
+                    {% if submission.submitted_file %}
+                    <a href="{{ submission.submitted_file.url }}" target="_blank" class="inline-flex items-center justify-center w-full px-4 py-3 border border-indigo-200 bg-indigo-50 text-indigo-700 rounded-xl hover:bg-indigo-100 transition-colors font-medium">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Download Submission
+                    </a>
+                    {% else %}
+                    <p class="text-red-500 text-sm">No file uploaded.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Evaluation Form -->
+        <div class="glass rounded-2xl shadow-sm border border-white/50 overflow-hidden">
+            <div class="px-6 py-5 border-b border-gray-200/50 bg-white/40">
+                <h2 class="text-lg font-semibold text-gray-900">Evaluation</h2>
+            </div>
+            <div class="p-6">
+                <form method="post" class="space-y-5">
+                    {% csrf_token %}
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="relative flex cursor-pointer rounded-xl border bg-white p-4 shadow-sm focus:outline-none 
+                                {% if submission.status == 'APPROVED' %}border-emerald-500 ring-1 ring-emerald-500{% else %}border-gray-200{% endif %}">
+                                <input type="radio" name="status" value="APPROVED" class="sr-only" required {% if submission.status == 'APPROVED' %}checked{% endif %}
+                                    onchange="this.parentElement.parentElement.querySelectorAll('label').forEach(l => {l.classList.remove('border-emerald-500', 'ring-1', 'ring-emerald-500', 'border-red-500', 'ring-red-500'); l.classList.add('border-gray-200')}); this.parentElement.classList.remove('border-gray-200'); this.parentElement.classList.add('border-emerald-500', 'ring-1', 'ring-emerald-500');">
+                                <span class="flex flex-1">
+                                    <span class="flex flex-col">
+                                        <span class="block text-sm font-medium text-gray-900">Approve</span>
+                                        <span class="mt-1 flex items-center text-sm text-gray-500">Satisfactory work</span>
+                                    </span>
+                                </span>
+                                <svg class="h-5 w-5 text-emerald-600 {% if submission.status != 'APPROVED' %}hidden{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                                </svg>
+                            </label>
+
+                            <label class="relative flex cursor-pointer rounded-xl border bg-white p-4 shadow-sm focus:outline-none
+                                {% if submission.status == 'REJECTED' %}border-red-500 ring-1 ring-red-500{% else %}border-gray-200{% endif %}">
+                                <input type="radio" name="status" value="REJECTED" class="sr-only" required {% if submission.status == 'REJECTED' %}checked{% endif %}
+                                    onchange="this.parentElement.parentElement.querySelectorAll('label').forEach(l => {l.classList.remove('border-emerald-500', 'ring-1', 'ring-emerald-500', 'border-red-500', 'ring-red-500'); l.classList.add('border-gray-200')}); this.parentElement.classList.remove('border-gray-200'); this.parentElement.classList.add('border-red-500', 'ring-1', 'ring-red-500');">
+                                <span class="flex flex-1">
+                                    <span class="flex flex-col">
+                                        <span class="block text-sm font-medium text-gray-900">Reject</span>
+                                        <span class="mt-1 flex items-center text-sm text-gray-500">Needs improvement</span>
+                                    </span>
+                                </span>
+                                <svg class="h-5 w-5 text-red-600 {% if submission.status != 'REJECTED' %}hidden{% endif %}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                                </svg>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="feedback" class="block text-sm font-medium text-gray-700 mb-1">Feedback / Comments</label>
+                        <textarea id="feedback" name="feedback" rows="4" placeholder="Provide constructive feedback..."
+                            class="block w-full px-4 py-3 rounded-xl border border-gray-200 bg-white/80 focus:bg-white text-gray-900 focus:ring-2 focus:ring-redlight-500 focus:border-redlight-500 transition-all sm:text-sm shadow-sm">{{ submission.feedback|default_if_none:"" }}</textarea>
+                    </div>
+
+                    <div class="pt-2">
+                        <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-redlight-600 hover:bg-redlight-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-redlight-500 transition-all transform hover:-translate-y-0.5">
+                            Submit Evaluation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Add logic to toggle icons in the radio buttons dynamically
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.querySelectorAll('input[type="radio"]').forEach(r => {
+                const icon = r.parentElement.querySelector('svg');
+                if(r.checked) {
+                    icon.classList.remove('hidden');
+                } else {
+                    icon.classList.add('hidden');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

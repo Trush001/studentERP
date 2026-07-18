@@ -1,0 +1,100 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Faculty ERP | Manage Batches{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full animate-fade-in">
+    <div class="glass p-6 sm:p-8 rounded-2xl shadow-sm border border-white/50 mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Manage Batches</h1>
+            <p class="text-gray-600 mt-1">Create and manage your student batches</p>
+        </div>
+        <a href="{% url 'faculty_dashboard' %}" class="inline-flex items-center px-4 py-2 border border-gray-200 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 hover:text-redlight-600 transition-colors shadow-sm">
+            &larr; Back to Dashboard
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Create Batch Form -->
+        <div class="lg:col-span-1">
+            <div class="glass rounded-2xl shadow-sm border border-white/50 overflow-hidden sticky top-24">
+                <div class="px-6 py-5 border-b border-gray-200/50 bg-white/40">
+                    <h2 class="text-lg font-semibold text-gray-900">Create New Batch</h2>
+                </div>
+                <div class="p-6">
+                    <form method="post" class="space-y-4">
+                        {% csrf_token %}
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Batch Name</label>
+                            <input type="text" id="name" name="name" required placeholder="E.g., Batch 2024 - A"
+                                class="block w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white/80 focus:bg-white text-gray-900 focus:ring-2 focus:ring-redlight-500 focus:border-redlight-500 transition-all sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="program_id" class="block text-sm font-medium text-gray-700 mb-1">Program</label>
+                            <select id="program_id" name="program_id" required class="block w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white/80 focus:bg-white text-gray-900 focus:ring-2 focus:ring-redlight-500 focus:border-redlight-500 transition-all sm:text-sm">
+                                <option value="" disabled selected>Select a program</option>
+                                {% for program in programs %}
+                                    <option value="{{ program.id }}">{{ program.name }} ({{ program.subject }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="pt-2">
+                            <button type="submit" class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-redlight-600 hover:bg-redlight-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-redlight-500 transition-all transform hover:-translate-y-0.5">
+                                Create Batch
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Batches List -->
+        <div class="lg:col-span-2">
+            <div class="glass rounded-2xl shadow-sm border border-white/50 overflow-hidden">
+                <div class="px-6 py-5 border-b border-gray-200/50 bg-white/40">
+                    <h2 class="text-lg font-semibold text-gray-900">Your Batches</h2>
+                </div>
+                
+                {% if batches %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50/50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Batch Name</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Students</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white/40 divide-y divide-gray-200/50">
+                            {% for batch in batches %}
+                            <tr class="hover:bg-white/60 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ batch.name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ batch.program.name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        {{ batch.students.count }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <a href="{% url 'batch_detail' batch.id %}" class="text-redlight-600 hover:text-redlight-900 bg-white border border-redlight-200 px-3 py-1.5 rounded-lg shadow-sm transition-colors mr-2">Manage</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="p-12 text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 text-gray-400 mb-4">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-1">No Batches Created</h3>
+                    <p class="text-gray-500">Use the form to create your first batch.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

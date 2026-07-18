@@ -1,0 +1,125 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full animate-fade-in">
+    <!-- Header Section -->
+    <div class="glass p-8 rounded-2xl shadow-sm border border-white/50 mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Welcome, {{ student.fullname }}!</h1>
+            <p class="text-gray-600 mt-1">Student Dashboard</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="{% url 'student_programs' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-redlight-600 hover:bg-redlight-500 shadow-sm transition-colors">
+                Browse Programs
+            </a>
+            <a href="{% url 'student_assignments' %}" class="inline-flex items-center px-4 py-2 border border-gray-200 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 hover:text-redlight-600 transition-colors shadow-sm">
+                My Assignments
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Attendance Stat -->
+        <div class="glass p-6 rounded-2xl shadow-sm border border-white/50 flex items-center hover:-translate-y-1 transition-transform">
+            <div class="p-4 rounded-xl {% if attendance_percentage >= 75 %}bg-emerald-100 text-emerald-600{% elif attendance_percentage >= 50 %}bg-yellow-100 text-yellow-600{% else %}bg-red-100 text-red-600{% endif %} mr-4 shadow-sm">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-500 mb-1">Overall Attendance</p>
+                <h3 class="text-3xl font-bold text-gray-900">{{ attendance_percentage }}%</h3>
+            </div>
+        </div>
+        
+        <!-- Enrolled Programs Stat -->
+        <div class="glass p-6 rounded-2xl shadow-sm border border-white/50 flex items-center hover:-translate-y-1 transition-transform">
+            <div class="p-4 rounded-xl bg-blue-100 text-blue-600 mr-4 shadow-sm">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-500 mb-1">Enrolled Programs</p>
+                <h3 class="text-3xl font-bold text-gray-900">{{ enrollments|length }}</h3>
+            </div>
+        </div>
+
+        <!-- Assigned Batches Stat -->
+        <div class="glass p-6 rounded-2xl shadow-sm border border-white/50 flex items-center hover:-translate-y-1 transition-transform">
+            <div class="p-4 rounded-xl bg-purple-100 text-purple-600 mr-4 shadow-sm">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-500 mb-1">Active Batches</p>
+                <h3 class="text-3xl font-bold text-gray-900">{{ batches|length }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- My Programs -->
+        <div class="glass rounded-2xl shadow-sm border border-white/50 overflow-hidden flex flex-col">
+            <div class="px-6 py-5 border-b border-gray-200/50 bg-white/40">
+                <h2 class="text-lg font-semibold text-gray-900">My Programs</h2>
+            </div>
+            <div class="p-0 flex-grow">
+                {% if enrollments %}
+                <ul class="divide-y divide-gray-200/50">
+                    {% for enrollment in enrollments %}
+                    <li class="p-6 hover:bg-white/40 transition-colors">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-base font-semibold text-gray-900">{{ enrollment.program.name }}</h4>
+                                <p class="text-sm text-gray-500 mt-1">Faculty: {{ enrollment.program.faculty.fullname }}</p>
+                            </div>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
+                                {% if enrollment.status == 'APPROVED' %}bg-emerald-100 text-emerald-800
+                                {% elif enrollment.status == 'PENDING' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ enrollment.status }}
+                            </span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="p-8 text-center text-gray-500">
+                    You have not enrolled in any programs yet.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- My Batches -->
+        <div class="glass rounded-2xl shadow-sm border border-white/50 overflow-hidden flex flex-col">
+            <div class="px-6 py-5 border-b border-gray-200/50 bg-white/40">
+                <h2 class="text-lg font-semibold text-gray-900">My Batches</h2>
+            </div>
+            <div class="p-0 flex-grow">
+                {% if batches %}
+                <ul class="divide-y divide-gray-200/50">
+                    {% for batch in batches %}
+                    <li class="p-6 hover:bg-white/40 transition-colors">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                                <h4 class="text-base font-semibold text-gray-900">{{ batch.name }}</h4>
+                                <p class="text-sm text-gray-500 mt-1">Program: {{ batch.program.name }}</p>
+                            </div>
+                            <div class="text-sm text-gray-500 bg-white/60 px-3 py-1.5 rounded-lg border border-gray-100">
+                                Faculty: <span class="font-medium text-gray-900">{{ batch.faculty.fullname }}</span>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="p-8 text-center text-gray-500">
+                    You have not been assigned to any batches yet.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

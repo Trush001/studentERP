@@ -1,0 +1,183 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Faculty Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full animate-fade-in">
+    <!-- Header Section -->
+    <div class="glass p-8 rounded-2xl shadow-sm border border-white/50 mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Welcome, Prof. {{ faculty.fullname }}!</h1>
+            <p class="text-gray-600 mt-1">Faculty Dashboard | {{ profile.subject }} Department</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="{% url 'enrollment_requests' %}" class="relative inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-redlight-600 hover:bg-redlight-500 shadow-sm transition-colors">
+                Enrollment Requests
+                {% if pending_enrollments > 0 %}
+                <span class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold border-2 border-white">
+                    {{ pending_enrollments }}
+                </span>
+                {% endif %}
+            </a>
+            <a href="{% url 'batch_management' %}" class="inline-flex items-center px-4 py-2 border border-gray-200 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 hover:text-redlight-600 transition-colors shadow-sm">
+                Manage Batches
+            </a>
+            <a href="{% url 'assignment_management' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-500 shadow-sm transition-colors">
+                All Assignments
+            </a>
+        </div>
+    </div>
+
+    <!-- Overview Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="glass p-6 rounded-2xl shadow-sm border border-white/50 flex flex-col justify-between hover:-translate-y-1 transition-transform">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-medium text-gray-500">Total Programs</h3>
+                <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                </div>
+            </div>
+            <p class="text-3xl font-bold text-gray-900">{{ programs|length }}</p>
+        </div>
+        
+        <div class="glass p-6 rounded-2xl shadow-sm border border-white/50 flex flex-col justify-between hover:-translate-y-1 transition-transform">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-medium text-gray-500">Active Batches</h3>
+                <div class="p-2 bg-purple-50 text-purple-600 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                </div>
+            </div>
+            <p class="text-3xl font-bold text-gray-900">{{ batches|length }}</p>
+        </div>
+
+        <div class="glass p-6 rounded-2xl shadow-sm border border-white/50 flex flex-col justify-between hover:-translate-y-1 transition-transform">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-medium text-gray-500">Pending Actions</h3>
+                <div class="p-2 {% if pending_enrollments > 0 %}bg-red-50 text-red-600{% else %}bg-emerald-50 text-emerald-600{% endif %} rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+            </div>
+            <p class="text-3xl font-bold text-gray-900">{{ pending_enrollments }}</p>
+        </div>
+    </div>
+
+    <!-- Data Visualizations -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div class="glass p-6 rounded-2xl shadow-sm border border-white/50 flex flex-col h-[400px]">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Students per Program</h3>
+            <div class="flex-grow relative w-full h-full">
+                <canvas id="programChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="glass p-6 rounded-2xl shadow-sm border border-white/50 flex flex-col h-[400px]">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Students per Batch</h3>
+            <div class="flex-grow relative w-full h-full">
+                <canvas id="batchChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions / Create Program -->
+    <div class="glass rounded-2xl shadow-sm border border-white/50 overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200/50 bg-white/40">
+            <h2 class="text-lg font-semibold text-gray-900">Create New Program</h2>
+        </div>
+        <div class="p-6">
+            <form action="{% url 'create_program' %}" method="post" class="flex flex-col sm:flex-row gap-4">
+                {% csrf_token %}
+                <div class="flex-1">
+                    <label class="sr-only" for="name">Program Name</label>
+                    <input type="text" name="name" id="name" placeholder="E.g., B.Tech Computer Science" required 
+                        class="block w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white/80 focus:bg-white focus:ring-2 focus:ring-redlight-500 focus:border-redlight-500 transition-all sm:text-sm">
+                </div>
+                <div class="flex-1">
+                    <label class="sr-only" for="subject">Subject Area</label>
+                    <input type="text" name="subject" id="subject" placeholder="E.g., Engineering" required 
+                        class="block w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white/80 focus:bg-white focus:ring-2 focus:ring-redlight-500 focus:border-redlight-500 transition-all sm:text-sm">
+                </div>
+                <button type="submit" class="inline-flex justify-center items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-xl text-white bg-redlight-600 hover:bg-redlight-500 shadow-sm transition-colors">
+                    Create Program
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const programData = JSON.parse('{{ program_stats_json|escapejs }}');
+        const batchData = JSON.parse('{{ batch_stats_json|escapejs }}');
+        
+        // Setup Chart defaults
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#6B7280';
+        
+        // 1. Program Chart (Bar)
+        if (programData.length > 0) {
+            const programCtx = document.getElementById('programChart').getContext('2d');
+            new Chart(programCtx, {
+                type: 'bar',
+                data: {
+                    labels: programData.map(p => p.name),
+                    datasets: [{
+                        label: 'Approved Students',
+                        data: programData.map(p => p.count),
+                        backgroundColor: 'rgba(244, 63, 94, 0.7)', // redlight-500
+                        borderColor: 'rgb(244, 63, 94)',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0 }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 2. Batch Chart (Doughnut)
+        if (batchData.length > 0) {
+            const batchCtx = document.getElementById('batchChart').getContext('2d');
+            new Chart(batchCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: batchData.map(b => b.name),
+                    datasets: [{
+                        data: batchData.map(b => b.count),
+                        backgroundColor: [
+                            'rgba(79, 70, 229, 0.7)',   // Indigo
+                            'rgba(16, 185, 129, 0.7)',  // Emerald
+                            'rgba(245, 158, 11, 0.7)',  // Amber
+                            'rgba(236, 72, 153, 0.7)',  // Pink
+                            'rgba(59, 130, 246, 0.7)',  // Blue
+                            'rgba(139, 92, 246, 0.7)'   // Violet
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

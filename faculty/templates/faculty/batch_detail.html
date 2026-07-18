@@ -1,0 +1,98 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Faculty ERP | Batch Details{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full animate-fade-in">
+    <div class="glass p-6 sm:p-8 rounded-2xl shadow-sm border border-white/50 mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <div class="flex items-center gap-3">
+                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">{{ batch.name }}</h1>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
+                    {{ batch.program.name }}
+                </span>
+            </div>
+            <p class="text-gray-600 mt-2">Manage students, attendance, and assignments for this batch</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{% url 'batch_management' %}" class="inline-flex items-center px-4 py-2 border border-gray-200 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 hover:text-redlight-600 transition-colors shadow-sm">
+                &larr; Back
+            </a>
+            <a href="{% url 'mark_attendance' batch.id %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors shadow-sm border-emerald-200">
+                Mark Attendance
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Enrolled Students -->
+        <div class="glass rounded-2xl shadow-sm border border-white/50 overflow-hidden flex flex-col h-full">
+            <div class="px-6 py-5 border-b border-gray-200/50 bg-white/40 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-900">Enrolled Students ({{ batch.students.count }})</h2>
+            </div>
+            
+            <div class="p-0 flex-grow">
+                {% if batch.students.all %}
+                <ul class="divide-y divide-gray-200/50">
+                    {% for student in batch.students.all %}
+                    <li class="p-4 sm:px-6 hover:bg-white/40 transition-colors flex justify-between items-center">
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">{{ student.fullname }}</p>
+                            <p class="text-xs text-gray-500">{{ student.email }}</p>
+                        </div>
+                        <form method="post" onsubmit="return confirm('Remove {{ student.fullname }} from this batch?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="remove">
+                            <input type="hidden" name="student_id" value="{{ student.id }}">
+                            <button type="submit" class="text-red-500 hover:text-red-700 bg-white border border-red-200 rounded-lg px-2.5 py-1 text-xs font-medium shadow-sm hover:bg-red-50 transition-colors">
+                                Remove
+                            </button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="p-8 text-center text-gray-500 h-full flex flex-col items-center justify-center">
+                    <p>No students have been added to this batch yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Available Students -->
+        <div class="glass rounded-2xl shadow-sm border border-white/50 overflow-hidden flex flex-col h-full">
+            <div class="px-6 py-5 border-b border-gray-200/50 bg-white/40 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-900">Available Students</h2>
+                <span class="text-xs text-gray-500 px-2 py-1 bg-gray-100 rounded-full border border-gray-200">{{ available_students.count }} available</span>
+            </div>
+            
+            <div class="p-0 flex-grow max-h-[500px] overflow-y-auto">
+                {% if available_students %}
+                <ul class="divide-y divide-gray-200/50">
+                    {% for student in available_students %}
+                    <li class="p-4 sm:px-6 hover:bg-white/40 transition-colors flex justify-between items-center">
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">{{ student.fullname }}</p>
+                            <p class="text-xs text-gray-500">{{ student.email }}</p>
+                        </div>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="add">
+                            <input type="hidden" name="student_id" value="{{ student.id }}">
+                            <button type="submit" class="text-emerald-600 hover:text-emerald-700 bg-white border border-emerald-200 rounded-lg px-2.5 py-1 text-xs font-medium shadow-sm hover:bg-emerald-50 transition-colors">
+                                Add to Batch
+                            </button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="p-8 text-center text-gray-500 h-full flex flex-col items-center justify-center">
+                    <p>No eligible students available to add.<br><span class="text-xs mt-2 block">Only approved students in the program who aren't already in this batch will appear here.</span></p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

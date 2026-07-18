@@ -1,0 +1,169 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Faculty ERP | Manage Assignments{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full animate-fade-in">
+    <div class="glass p-6 sm:p-8 rounded-2xl shadow-sm border border-white/50 mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <div class="flex items-center gap-3">
+                <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Manage Assignments</h1>
+            </div>
+            <p class="text-gray-600 mt-2">Create assignments and review student submissions across all batches</p>
+        </div>
+        <a href="{% url 'faculty_dashboard' %}" class="inline-flex items-center px-4 py-2 border border-gray-200 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 hover:text-redlight-600 transition-colors shadow-sm">
+            &larr; Back to Dashboard
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Create Assignment Form -->
+        <div class="lg:col-span-1">
+            <div class="glass rounded-2xl shadow-sm border border-white/50 overflow-hidden sticky top-24">
+                <div class="px-6 py-5 border-b border-gray-200/50 bg-white/40">
+                    <h2 class="text-lg font-semibold text-gray-900">Create New Assignment</h2>
+                </div>
+                <div class="p-6">
+                    <form method="post" enctype="multipart/form-data" class="space-y-4">
+                        {% csrf_token %}
+                        <div>
+                            <label for="batch_id" class="block text-sm font-medium text-gray-700 mb-1">Batch</label>
+                            <select id="batch_id" name="batch_id" required class="block w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white/80 focus:bg-white text-gray-900 focus:ring-2 focus:ring-redlight-500 focus:border-redlight-500 transition-all sm:text-sm shadow-sm">
+                                <option value="" disabled {% if not selected_batch_id %}selected{% endif %}>Select a Batch</option>
+                                {% for b in batches %}
+                                    <option value="{{ b.id }}" {% if selected_batch_id == b.id %}selected{% endif %}>{{ b.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="title" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                            <input type="text" id="title" name="title" required 
+                                class="block w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white/80 focus:bg-white text-gray-900 focus:ring-2 focus:ring-redlight-500 focus:border-redlight-500 transition-all sm:text-sm shadow-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <textarea id="description" name="description" rows="4" required 
+                                class="block w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white/80 focus:bg-white text-gray-900 focus:ring-2 focus:ring-redlight-500 focus:border-redlight-500 transition-all sm:text-sm shadow-sm"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label for="due_date" class="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+                            <input type="date" id="due_date" name="due_date" required 
+                                class="block w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white/80 focus:bg-white text-gray-900 focus:ring-2 focus:ring-redlight-500 focus:border-redlight-500 transition-all sm:text-sm shadow-sm">
+                        </div>
+                        
+                        <div>
+                            <label for="file" class="block text-sm font-medium text-gray-700 mb-1">Reference File (Optional)</label>
+                            <input type="file" id="file" name="file" 
+                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-redlight-50 file:text-redlight-700 hover:file:bg-redlight-100 transition-colors shadow-sm">
+                        </div>
+                        
+                        <div class="pt-2">
+                            <button type="submit" class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-redlight-600 hover:bg-redlight-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-redlight-500 transition-all transform hover:-translate-y-0.5">
+                                Create Assignment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assignments List & Submissions -->
+        <div class="lg:col-span-2">
+            <div class="glass rounded-2xl shadow-sm border border-white/50 overflow-hidden">
+                <div class="px-6 py-5 border-b border-gray-200/50 bg-white/40 flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-gray-900">Existing Assignments</h2>
+                    
+                    <form method="get" class="flex items-center gap-2">
+                        <select name="batch_id" onchange="this.form.submit()" class="block w-48 px-3 py-1.5 rounded-lg border border-gray-200 bg-white/80 focus:bg-white text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all shadow-sm">
+                            <option value="">All Batches</option>
+                            {% for b in batches %}
+                                <option value="{{ b.id }}" {% if selected_batch_id == b.id %}selected{% endif %}>{{ b.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+                
+                <div class="p-0">
+                    {% if assignments %}
+                    <ul class="divide-y divide-gray-200/50">
+                        {% for assignment in assignments %}
+                        <li class="p-6">
+                            <div class="mb-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-900">{{ assignment.title }}</h3>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 mt-1 border border-gray-200">
+                                            Batch: {{ assignment.batch.name }}
+                                        </span>
+                                    </div>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-redlight-100 text-redlight-800 border border-redlight-200">
+                                        Due: {{ assignment.due_date|date:"M d, Y" }}
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-2 bg-white/50 p-3 rounded-lg border border-gray-100">{{ assignment.description }}</p>
+                                {% if assignment.file %}
+                                <div class="mt-3">
+                                    <a href="{{ assignment.file.url }}" target="_blank" class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors">
+                                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        View Attachment
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Submissions for this assignment -->
+                            <div class="mt-6">
+                                <h4 class="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider">Student Submissions</h4>
+                                {% if assignment.submissions.all %}
+                                <div class="bg-white/40 rounded-xl border border-gray-200/50 overflow-hidden">
+                                    <ul class="divide-y divide-gray-200/50">
+                                        {% for submission in assignment.submissions.all %}
+                                        <li class="p-4 flex items-center justify-between hover:bg-white/60 transition-colors">
+                                            <div class="flex items-center gap-3">
+                                                <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold text-gray-600">
+                                                    {{ submission.student.fullname|first|upper }}
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-medium text-gray-900">{{ submission.student.fullname }}</p>
+                                                    <p class="text-xs text-gray-500">Submitted: {{ submission.submission_date|date:"M d, g:i a" }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center gap-4">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                                    {% if submission.status == 'APPROVED' %}bg-emerald-100 text-emerald-800
+                                                    {% elif submission.status == 'REJECTED' %}bg-red-100 text-red-800
+                                                    {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                                    {{ submission.status }}
+                                                </span>
+                                                <a href="{% url 'review_submission' submission.id %}" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium hover:underline">
+                                                    Review
+                                                </a>
+                                            </div>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                {% else %}
+                                <p class="text-sm text-gray-500 italic">No submissions yet.</p>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="p-12 text-center text-gray-500">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 text-gray-400 mb-4">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <p>No assignments found. {% if selected_batch_id %}Try selecting a different batch or clear the filter.{% else %}Create one using the form.{% endif %}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
